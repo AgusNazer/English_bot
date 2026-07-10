@@ -47,21 +47,26 @@ PUBLIC_URL = "http://127.0.0.1:8000"
 @app.on_event("startup")
 async def startup_event():
     global PUBLIC_URL
-    ngrok_token = os.getenv("NGROK_AUTHTOKEN")
     
+    # 1. Render setea automáticamente la variable 'RENDER' en sus servidores.
+    # Si esa variable existe, significa que estamos en producción.
+    if os.getenv("RENDER") == "true":
+        # Leemos la URL definitiva de Render que vas a poner en el panel
+        PUBLIC_URL = os.getenv("PRODUCTION_URL", "https://tu-app.onrender.com")
+        print(f"\n🚀 CORRIENDO EN PRODUCCIÓN - URL: {PUBLIC_URL}\n")
+        return # Cortamos acá para que NO intente levantar pyngrok
+
+    # 2. Si NO estamos en Render, significa que estás en tu Mac. Corre pyngrok:
+    ngrok_token = os.getenv("NGROK_AUTHTOKEN")
     if ngrok_token:
         try:
-            # Autentica y levanta el túnel en el puerto 8000 de forma automática
             ngrok.set_auth_token(ngrok_token)
             tunnel = ngrok.connect(8000)
             PUBLIC_URL = tunnel.public_url
             print(f"\n🚀 ¡TÚNEL NGROK LEVANTADO CON ÉXITO!")
-            print(f"🔗 URL Pública para tu iPhone: {PUBLIC_URL}")
-            print(f"📄 Docs desde el celular: {PUBLIC_URL}/docs\n")
+            print(f"🔗 URL Pública para tu iPhone: {PUBLIC_URL}\n")
         except Exception as e:
-            print(f"⚠️ No se pudo levantar Ngrok de forma automática: {e}")
-    else:
-        print("⚠️ NGROK_AUTHTOKEN no encontrado en el .env. Corriendo solo en modo local.")
+            print(f"⚠️ No se pudo levantar Ngrok local: {e}")
 
 # Inicializamos el cliente de Gemini (toma automáticamente la variable GEMINI_API_KEY)
 client = genai.Client()
