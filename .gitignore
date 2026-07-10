@@ -1,0 +1,48 @@
+# === Credenciales y Configuración ===
+.env
+.env.*
+!.env.example
+ngrok.yml
+
+# === Entornos Virtuales de Python ===
+venv/
+.venv/
+env/
+ENV/
+build/
+dist/
+*.egg-info/
+
+# === Cache de Python ===
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+
+# === Base de Datos Local (SQLite) ===
+*.db
+*.sqlite3
+*.sqlite
+
+# === Archivos Estáticos Generados (Audios del MVP) ===
+# Ignoramos todos los .mp3 de la carpeta static para no llenar GitHub de audios de prueba
+src/static/*.mp3
+
+# === Sistema Operativo (macOS) ===
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.Spotlight-V100
+.Trashes
+
+# === Herramientas de Desarrollo / VS Code ===
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
