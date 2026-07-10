@@ -28,6 +28,11 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
+origins = [
+    "http://localhost:3000",
+    "https://english-bot.anuarnazer.com",  
+]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
