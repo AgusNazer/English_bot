@@ -5,7 +5,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 import random
 import os
+import time
 from gtts import gTTS
+import edge_tts
 
 # Importaciones locales
 from src.schemas import RageInteraction
@@ -90,9 +92,9 @@ CRITICAL LANGUAGE & CONVERSATION RULES:
 
 @app.post("/vent")
 async def process_chat(interaction: RageInteraction, db: Session = Depends(get_db)):
+    t0 = time.time()
     text_input = interaction.detected_text
-    
-    # 1. Gestión del usuario y contador de interacciones en SQLite
+
     user = db.query(DBUserProfile).filter(DBUserProfile.user_id == interaction.user_id).first()
     if not user:
         user = DBUserProfile(user_id=interaction.user_id, rage_streak=1)
@@ -101,8 +103,9 @@ async def process_chat(interaction: RageInteraction, db: Session = Depends(get_d
         user.rage_streak += 1
     db.commit()
     db.refresh(user)
-    
-    # 2. Llamada directa a Gemini para generar la respuesta dinámica
+    t1 = time.time()
+    print(f"⏱️ DB: {t1-t0:.2f}s", flush=True)
+
     try:
         response = client.models.generate_content(
             model='gemini-2.5-flash',
@@ -114,22 +117,25 @@ async def process_chat(interaction: RageInteraction, db: Session = Depends(get_d
         )
         reply = response.text.strip()
     except Exception as e:
-        # Esto te va a mostrar el error real en la terminal donde corre Uvicorn
-        print("--- ERROR DETECTADO EN GEMINI ---")
-        print(e)
-        print("---------------------------------")
+        print("--- ERROR DETECTADO EN GEMINI ---", flush=True)
+        print(repr(e), flush=True)
+        print("---------------------------------", flush=True)
         reply = "Hey! I had a small connection issue with my server. Could you repeat that, please?"
+    t2 = time.time()  # 👈 ahora esto está SIEMPRE, sea éxito o error
+    print(f"⏱️ Gemini: {t2-t1:.2f}s", flush=True)
 
-    # 3. Generar el archivo de audio con gTTS leyendo la respuesta de la IA
     filename = f"{interaction.user_id}_{random.randint(1000, 9999)}.mp3"
     filepath = os.path.join(AUDIO_DIR, filename)
-    
-    # Mandamos 'en' fijo porque la IA siempre te va a hablar en inglés
-    tts = gTTS(text=reply, lang='en')
-    tts.save(filepath)
-    
+
+    communicate = edge_tts.Communicate(reply, voice="en-US-AriaNeural")
+    await communicate.save(filepath)
+
+    t3 = time.time()
+    print(f"⏱️ TTS: {t3-t2:.2f}s", flush=True)
+
     audio_url = f"{PUBLIC_URL}/static/{filename}"
-        
+    print(f"⏱️ TOTAL: {t3-t0:.2f}s", flush=True)
+
     return {
         "user_id": user.user_id,
         "interaction_count": user.rage_streak,
