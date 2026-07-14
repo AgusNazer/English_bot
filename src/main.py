@@ -106,6 +106,7 @@ async def process_chat(interaction: RageInteraction, db: Session = Depends(get_d
     t1 = time.time()
     print(f"⏱️ DB: {t1-t0:.2f}s", flush=True)
 
+#agregar mnemoria para contexto en el siguiente bloque
     try:
         response = client.models.generate_content(
             model='gemini-2.5-flash',
@@ -113,6 +114,7 @@ async def process_chat(interaction: RageInteraction, db: Session = Depends(get_d
             config=types.GenerateContentConfig(
                 system_instruction=SYSTEM_PROMPT,
                 temperature=0.7,
+                tools=[types.Tool(google_search=types.GoogleSearch())]
             )
         )
         reply = response.text.strip()
