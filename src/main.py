@@ -1,4 +1,4 @@
-# src/main.py
+# Importante: refactorizar este archivo para separar responsabilidades y mejorar la mantenibilidad. Actualmente, contiene demasiada lógica en un solo lugar.
 from fastapi import FastAPI, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
