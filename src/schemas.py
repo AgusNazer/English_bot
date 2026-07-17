@@ -5,10 +5,11 @@ from typing import Optional
 class UserProfile(BaseModel):
     username: str
     selected_voice: str = "default"  # Ej: "gordon", "sergeant", "sarcastic"
-    rage_streak: int = 0             # Contador de puteadas consecutivas
+    rage_streak: int = 0             # esto no va mas
+    
 
 # Modelo para procesar la interacción de audio/texto
 class RageInteraction(BaseModel):
     user_id: str
-    detected_text: str               # Lo que el usuario gritó/dijo
+    detected_text: str               # Lo que el usuario dijo
     audio_duration_seconds: Optional[float] = None
