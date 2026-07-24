@@ -26,6 +26,7 @@ from src.database import engine, Base, get_db
 from src.models import DBUserProfile
 
 # Creamos las tablas de SQLite al iniciar la app
+#Modificar y modularizar el main.
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
