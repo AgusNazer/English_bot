@@ -91,6 +91,8 @@ CRITICAL LANGUAGE & CONVERSATION RULES:
 4. End every response with an open-ended question in English to keep the dialogue moving forward naturally.
 """
 
+#Improve the system prove to be more engaging and human-like, while still maintaining a professional tone.
+
 @app.post("/vent")
 async def process_chat(interaction: RageInteraction, db: Session = Depends(get_db)):
     t0 = time.time()
